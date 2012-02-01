@@ -26,11 +26,11 @@ class SearchController {
         if (rows <= 0) rows = 10;
 
         if (q.startsWith("taxon:")) {
-            q = q.substring(6);
+            q = '"' + q.substring(6) + '"'
             useSynonyms = true;
         }
 
-        q = URLEncoder.encode('"' + q + '"', "utf-8") ;
+        q = URLEncoder.encode(q, "utf-8")
         // def urlRoot = "http://ala-biocachedb1.vm.csiro.au:8080/bhl-ftindex/";
         def urlRoot = 'http://bhlidx.ala.org.au/'
 
