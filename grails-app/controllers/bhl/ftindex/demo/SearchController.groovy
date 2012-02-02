@@ -26,7 +26,9 @@ class SearchController {
         if (rows <= 0) rows = 10;
 
         if (q.startsWith("taxon:")) {
-            q = '"' + q.substring(6) + '"'
+            if (!(q.startsWith('"') && q.endsWith('"'))) {
+                q = '"' + q.substring(6) + '"'
+            }
             useSynonyms = true;
         }
 

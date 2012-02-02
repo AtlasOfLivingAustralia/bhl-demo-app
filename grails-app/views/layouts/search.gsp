@@ -113,10 +113,13 @@
                             buf += '<b>' + itemNumber++;
                             buf += '.</b> <A target="item" HREF="http://bhl.ala.org.au/item/' + obj.itemId + '">' + obj.name + '</A> '
                             buf += '<br />BHL Item ' + obj.itemId + ', Score ' + obj.score
-                            buf += '<br />Page Image:<A target="page image" HREF="http://bhl.ala.org.au/pageimage/' + obj.pageId + '">' + obj.pageId + '</A>'
+                            // buf += '<br />Page:<A style="vertical-align: middle" target="page image" HREF="http://bhl.ala.org.au/page/' + obj.pageId + '"><IMG SRC="http://bhl.ala.org.au/pagethumb/' + obj.pageId + '" width="50px"></IMG></A>'
 
                             if (obj.context) {
-                                buf += '<div class="highlight-context">' + obj.context + '</div>'
+                                buf += '<div class="highlight-context">'
+                                buf += '<div style="float:left; width: 530px">' + obj.context + '<br /><A style="vertical-align: bottom;" HREF="http://bhl.ala.org.au/pageOcr/' + obj.pageId + '" target="page_ocr">More...</A></div>'
+                                buf += '<div style="" class="page-thumbnail" align="center"><A target="page image" HREF="http://bhl.ala.org.au/page/' + obj.pageId + '"><IMG SRC="http://bhl.ala.org.au/pagethumb/' + obj.pageId + '" height="100px"></IMG></A></div>'
+                                buf += "</div>"
                             }
                             buf += "</div>";
                         })
@@ -132,7 +135,7 @@
 
                         $("#results").html(buf);
                         if (data.synonyms) {
-                            buf = "<b>Synonyms used:</b>";
+                            buf = "<b>Synonyms used:</b>&nbsp;";
                             buf += data.synonyms.join(", ");
                             $("#synonyms").html(buf).css("display", "block")
                         } else {
