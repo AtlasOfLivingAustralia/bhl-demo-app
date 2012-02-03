@@ -1,6 +1,8 @@
 package bhl.ftindex.demo
 
 import grails.converters.JSON
+import javax.swing.text.html.HTML
+import com.lowagie.text.html.HtmlEncoder
 
 class SearchController {
 
@@ -17,7 +19,7 @@ class SearchController {
 
         int fragSize = 200;
 
-        String q = request.getParameter("q");
+        String q = request.getParameter("q").trim();
         
         int start = request.getParameter("start") as int ?: 0;
         int rows = request.getParameter("rows") as int ?: 10;
@@ -33,30 +35,49 @@ class SearchController {
         }
 
         q = URLEncoder.encode(q, "utf-8")
-        // def urlRoot = "http://ala-biocachedb1.vm.csiro.au:8080/bhl-ftindex/";
+
         def urlRoot = 'http://bhlidx.ala.org.au/'
 
-        def urlStr = "${urlRoot}/select?indent=off&version=2.2&q=${q}&fq=&start=${start}&rows=${rows}&fl=name%2CpageId%2CitemId%2Cscore&qt=&wt=json&explainOther=&hl=on&hl.fl=text&hl.fragsize=${fragSize}"
+        def urlStr = "${urlRoot}/select?indent=off&version=2.2&q=${q}&fq=&start=${start}&rows=${rows}&fl=name%2CpageId%2CitemId%2Cscore&qt=&wt=json&explainOther="
+        urlStr += "&hl=on&hl.fl=text&hl.fragsize=${fragSize}"
+        urlStr += "&group=true&group.field=itemId&group.limit=7"
         if (useSynonyms) {
             urlStr += "&taxa=true"
         }
+        
+        println(urlStr)
 
         def url = new URL(urlStr);
         def response = JSON.parse(url.newReader())
-        def list = response["response"]["docs"];
-        def results = ['numFound':response['response']['numFound'], 'start' : response['response']['start']];
+        
+        println response as JSON
+
+        def results = ['numFound':response['grouped']['itemId']['matches'], 'start' : start];
+
+        def itemList = response["grouped"]['itemId']['groups'];
         def resultsList = [];
         def hl = response["highlighting"];
 
-        list.each {doc ->
-            def result = ["name": doc.name, "pageId" : doc.pageId, "itemId": doc.itemId, "score" : doc.score];
-            if (hl && hl[doc.pageId]) {
-                def context = hl[doc.pageId]["text"]
-                if (context && context[0]) {
-                    result["context"] = context[0];
+        for (itemGroup in itemList) {
+            def item = [
+                    "name":bhl.ftindex.demo.HtmlEscaper.escape(itemGroup['doclist']['docs'][0]['name']),
+                    'pageCount':itemGroup['doclist']['numFound'],
+                    'score':itemGroup['doclist']['maxScore'],
+                    'itemId':itemGroup['groupValue']
+            ]
+            def pages = []
+            for (itemPage in itemGroup['doclist']['docs']) {
+                def page = ["pageId": itemPage.pageId, "score": itemPage.score];
+                if (hl && hl[itemPage.pageId]) {
+                    def context = hl[itemPage.pageId]["text"]
+                    if (context && context[0]) {
+                        page["context"] = HtmlEscaper.escape(context[0]);
+                    }
                 }
+                pages.add(page);
             }
-            resultsList.add(result)
+            item['pages'] = pages;
+            resultsList.add(item)
         }
 
         if (useSynonyms) {
@@ -73,6 +94,8 @@ class SearchController {
         }
         
         results["resultList"] = resultsList
+        
+        println(results as JSON)
 
         render results as JSON
     }
