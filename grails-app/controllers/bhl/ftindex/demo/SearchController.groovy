@@ -44,13 +44,11 @@ class SearchController {
         if (useSynonyms) {
             urlStr += "&taxa=true"
         }
-        
-        println(urlStr)
 
         def url = new URL(urlStr);
         def response = JSON.parse(url.newReader())
         
-        println response as JSON
+        // println response as JSON
 
         def results = ['numFound':response['grouped']['itemId']['matches'], 'start' : start];
 
@@ -95,7 +93,7 @@ class SearchController {
         
         results["resultList"] = resultsList
         
-        println(results as JSON)
+        // println(results as JSON)
 
         render results as JSON
     }
