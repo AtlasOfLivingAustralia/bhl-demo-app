@@ -36,7 +36,7 @@ class SearchController {
 
         q = URLEncoder.encode(q, "utf-8")
 
-        def urlRoot = 'http://bhlidx.ala.org.au/'
+        def urlRoot = 'http://bhlidx.ala.org.au'
 
         def urlStr = "${urlRoot}/select?indent=off&version=2.2&q=${q}&fq=&start=${start}&rows=${rows}&fl=name%2CpageId%2CitemId%2Cscore&qt=&wt=json&explainOther="
         urlStr += "&hl=on&hl.fl=text&hl.fragsize=${fragSize}"
