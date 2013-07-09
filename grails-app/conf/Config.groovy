@@ -59,6 +59,8 @@ grails.exceptionresolver.params.exclude = ['password']
 // enable query caching by default
 grails.hibernate.cache.queries = true
 
+bhlftindex.solrUrl = "http://bhlidx.ala.org.au"
+
 // set per-environment serverURL stem for creating absolute links
 environments {
     development {
@@ -82,7 +84,7 @@ log4j = {
         }
     }
     root {
-        debug 'stdout', 'file'
+        // debug 'stdout', 'file'
     }
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers

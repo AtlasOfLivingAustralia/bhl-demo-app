@@ -11,7 +11,7 @@ class SearchController {
     }
 
     def home = {
-        [foo:"bar"]
+        [:]
     }
 
     def ajaxSearch = {
@@ -19,10 +19,12 @@ class SearchController {
 
         int fragSize = 200;
 
-        String q = request.getParameter("q").trim();
+        String q = params.q?.trim()
         
-        int start = request.getParameter("start") as int ?: 0;
-        int rows = request.getParameter("rows") as int ?: 10;
+        int start = params.int("start") ?: 0
+        int rows = params.int("rows") ?: 10
+        int pageLimit = params.int("pageLimit") ?: 7
+        int pageOffset = params.int("pageOffset") ?: 0
 
         if (start < 0) start = 0;
         if (rows <= 0) rows = 10;
@@ -36,11 +38,11 @@ class SearchController {
 
         q = URLEncoder.encode(q, "utf-8")
 
-        def urlRoot = 'http://bhlidx.ala.org.au'
+        def urlRoot = grailsApplication.config.bhlftindex.solrUrl
 
         def urlStr = "${urlRoot}/select?indent=off&version=2.2&q=${q}&fq=&start=${start}&rows=${rows}&fl=name%2CpageId%2CitemId%2Cscore&qt=&wt=json&explainOther="
         urlStr += "&hl=on&hl.fl=text&hl.fragsize=${fragSize}"
-        urlStr += "&group=true&group.field=itemId&group.limit=7"
+        urlStr += "&group=true&group.field=itemId&group.limit=${pageLimit}&group.offset=${pageOffset}"
         if (useSynonyms) {
             urlStr += "&taxa=true"
         }
@@ -57,9 +59,10 @@ class SearchController {
         def hl = response["highlighting"];
 
         for (itemGroup in itemList) {
+            def pageCount = itemGroup['doclist']['numFound']
             def item = [
                     "name":bhl.ftindex.demo.HtmlEscaper.escape(itemGroup['doclist']['docs'][0]['name']),
-                    'pageCount':itemGroup['doclist']['numFound'],
+                    'pageCount': pageCount,
                     'score':itemGroup['doclist']['maxScore'],
                     'itemId':itemGroup['groupValue']
             ]
@@ -75,6 +78,9 @@ class SearchController {
                 pages.add(page);
             }
             item['pages'] = pages;
+            if (pageCount > pageLimit) {
+                item['showPagesLink'] = true;
+            }
             resultsList.add(item)
         }
 
@@ -92,9 +98,15 @@ class SearchController {
         }
         
         results["resultList"] = resultsList
-        
-        // println(results as JSON)
+        results["q"] = params.q
 
         render results as JSON
+    }
+
+    def pagesForItem = {
+        def itemId = params.int("itemId")
+        def q = params.q ?: ""
+        q = "itemId:${itemId}%20AND%20" + q;
+        [itemId: itemId, q: q, originalQuery: params.q]
     }
 }

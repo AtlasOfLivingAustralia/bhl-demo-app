@@ -44,6 +44,9 @@
       <sourceFolder url="file://$USER_HOME$/.grails/2.0.1/projects/bhl-ftindex-demo/plugins/rest-0.7/src/groovy" isTestSource="false" />
     </content>
     <content url="file://$USER_HOME$/.grails/2.0.1/projects/bhl-ftindex-demo/plugins/tomcat-2.0.1" />
+    <content url="file://$USER_HOME$/.grails/2.0.1/projects/bhl-ftindex-demo/plugins/webxml-1.4.1">
+      <sourceFolder url="file://$USER_HOME$/.grails/2.0.1/projects/bhl-ftindex-demo/plugins/webxml-1.4.1/src/groovy" isTestSource="false" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="PROVIDED" name="grails-2.0.0" level="application" />
