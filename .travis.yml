@@ -1,0 +1,26 @@
+language: groovy
+jdk:
+- oraclejdk7
+branches:
+  only:
+  - master
+before_install:
+- rm -rf ~/.gvm
+- curl -s get.gvmtool.net > ~/install_gvm.sh
+- chmod 775 ~/install_gvm.sh
+- ~/install_gvm.sh
+- echo "gvm_auto_answer=true" > ~/.gvm/etc/config
+- source ~/.gvm/bin/gvm-init.sh
+- GRAILS_VERSION=`grep '^app\.grails\.version=' ./application.properties | sed -e
+  's/^app\.grails\.version=//g'`
+- gvm install grails $GRAILS_VERSION || true
+before_script:
+- mkdir -p ~/.grails; wget -q -O ~/.grails/settings.groovy https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_grails_settings_old.groovy
+- MAVEN_REPO="ala-repo-snapshot"; grep '^app\.version=' ./application.properties |
+  grep -q "\-SNAPSHOT"; if [ "$?" = "1" ]; then MAVEN_REPO="ala-repo-release"; fi;
+script: grails clean && grails refresh-dependencies --non-interactive && grails prod
+  war --non-interactive && grails prod maven-deploy --repository=$MAVEN_REPO --non-interactive
+env:
+  global:
+  - secure: VzbzfuAzaE8umC5GKUlQcDLpm9oCzcFFZykT0AF5WAtu4PMs6fhuo0E+0XYZSS0WWIC9U01/a+YWMbbRW/rCCE2DFvc6XIk7cRXdG0k/FADb0maPl1iRbQNJR8bOw+az2CmNV8AlooV7DFg7y8MTBwBTA0Tt7tuZQFChY0txu84=
+  - secure: B6Wb7e1YD3FnNoe2FL9LtZ7L1A4zyv3XjCItLM9o+tIKlmay2+1he+MD3+my6muPM06gyDKulgFc2uY2Edw7nBElMolHEGiRCwgmGa5E5l+Z0adjEE1uMMZAXDxX2fayA55S4QJv20FZ0q3u7K+jWpAHiT5s10LHjcxpjbq8m+A=
